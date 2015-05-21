@@ -12,32 +12,49 @@ function Mutators (app) {
 
   function indexPageMutator() {
     var el = this;
+    
 
-    query(el, 'div').forEach(function(element) {
-      if (element.ref === 'listings') {
-        var listings = element.props.children[0];
+    var listings = el.props.children;
+    if (listings.length > 0) {
+      var location = Math.min(AD_LOCATION, listings.length);
+      var randomElementIndex = parseInt(listings.length * Math.random());
+      var hijackedProps = listings[randomElementIndex].props;
 
-        if (listings.length > 0) {
-          var location = Math.min(AD_LOCATION, listings.length);
-          var randomElementIndex = parseInt(element.props.children[0].length * Math.random());
-          var hijackedProps = element.props.children[0][randomElementIndex].props;
+      var srnames = _.uniq(listings.map(function(l) {
+        return l.props.listing.subreddit;
+      }));
 
-          var srnames = _.uniq(element.props.children[0].map(function(l) {
-            return l.props.listing.subreddit;
-          }));
+      el.props.children.splice(location, 0, (
+        <Ad { ...hijackedProps } srnames={srnames} />
+      ));
+    }
 
-          element.props.children[0].splice(location, 0, (
-            <Ad { ...hijackedProps } srnames={srnames} />
-          ));
-        }
-      }
-    });
+
+    // query(el, 'div').forEach(function(element) {
+    //   if (element.ref === 'listings') {
+    //     var listings = element.props.children[0].props.listings;
+
+    //     if (listings.length > 0) {
+    //       var location = Math.min(AD_LOCATION, listings.length);
+    //       var randomElementIndex = parseInt(element.props.children[0].length * Math.random());
+    //       var hijackedProps = element.props.children[0][randomElementIndex].props;
+
+    //       var srnames = _.uniq(element.props.children[0].map(function(l) {
+    //         return l.props.listing.subreddit;
+    //       }));
+
+    //       element.props.children[0].splice(location, 0, (
+    //         <Ad { ...hijackedProps } srnames={srnames} />
+    //       ));
+    //     }
+    //   }
+    // });
 
     return el;
   }
 
   return {
-    'core/pages/index': [
+    'core/components/listingList': [
       indexPageMutator,
     ],
   };
